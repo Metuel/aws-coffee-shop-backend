@@ -1,34 +1,31 @@
 from rest_framework import serializers
+
 from .models import Category, Product
 
 
 class CategorySerializer(serializers.ModelSerializer):
-    product_count = serializers.IntegerField(source='products.count', read_only=True)
-
     class Meta:
         model = Category
-        fields = ['id', 'name', 'description', 'product_count']
+        fields = ["id", "name"]
 
 
 class ProductSerializer(serializers.ModelSerializer):
-    category_name = serializers.CharField(source='category.name', read_only=True)
-    size_display = serializers.CharField(source='get_size_display', read_only=True)
-    product_type_display = serializers.CharField(source='get_product_type_display', read_only=True)
+    category = CategorySerializer(read_only=True)
+    in_stock = serializers.BooleanField(read_only=True)
 
     class Meta:
-        model  = Product
+        model = Product
         fields = [
-            'id', 'category', 'category_name',
-            'product_type', 'product_type_display',
-            'name', 'description',
-            'price', 'size', 'size_display',
-            'is_vegetarian', 'is_vegan', 'is_gluten_free', 'contains_nuts',
-            'image', 'is_available', 'is_featured', 'stock',
-            'created_at', 'updated_at',
+            "id", "name", "description", "price",
+            "image", "category", "stock", "in_stock",
         ]
-        read_only_fields = ['created_at', 'updated_at']
+        read_only_fields = fields
 
-    def validate_price(self, value):
-        if value <= 0:
-            raise serializers.ValidationError('Price must be greater than zero.')
-        return value
+
+class ProductSummarySerializer(serializers.ModelSerializer):
+    """Lightweight product info embedded in cart items."""
+
+    class Meta:
+        model = Product
+        fields = ["id", "name","price", "image"]
+        read_only_fields = fields

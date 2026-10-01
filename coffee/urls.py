@@ -1,28 +1,67 @@
-"""
-URL configuration for coffee project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/6.1/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
 from django.contrib import admin
 from django.urls import path, include
 from django.conf.urls.static import static
 from django.conf import settings
+from rest_framework.authtoken import views as auth_views
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/auth/', include('dj_rest_auth.urls')),
-    path('api/auth/registration/', include('dj_rest_auth.registration.urls')),
+
+    # --- Authentication ---
+    path('api/auth/', include('accounts.urls')),
+    path('api/auth/login/', auth_views.obtain_auth_token, name='api_token'),
+
+    # --- App endpoints ---
     path('api/', include('products.urls')),
     path('api/cart/', include('carts.urls')),
-]  + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    # path('api/orders/', include('orders.urls')),
+
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+
+
+
+
+
+
+
+
+# """
+# URL configuration for coffee project.
+# """
+# from django.contrib import admin
+# from django.urls import path, include
+# from django.conf.urls.static import static
+# from django.conf import settings
+# from rest_framework.authtoken import views as auth_views
+# from dj_rest_auth.views import LoginView, LogoutView
+# from dj_rest_auth.registration.views import RegisterView
+
+
+# urlpatterns = [
+#     path('admin/', admin.site.urls),
+
+#     # --- Auth ---
+#     # Override login/register/logout so an expired token in the header
+#     # doesn't block these endpoints.
+#     path('api/auth/login/',
+#          LoginView.as_view(authentication_classes=[]),
+#          name='rest_login'),
+#     path('api/auth/logout/',
+#          LogoutView.as_view(authentication_classes=[]),
+#          name='rest_logout'),
+#     path('api/auth/registration/',
+#          RegisterView.as_view(authentication_classes=[]),
+#          name='rest_register'),
+
+#     # Everything else from dj-rest-auth (password reset, user, token refresh, etc.)
+#     path('api/auth/', include('dj_rest_auth.urls')),
+
+#     # --- App endpoints ---
+#     path('api/',        include('products.urls')),
+#     path('api/cart/',   include('carts.urls')),
+#     path('api/token/', auth_views.obtain_auth_token, name='api_token'),
+#     # path('api/orders/', include('orders.urls')),
+
+# ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
