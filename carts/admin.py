@@ -1,34 +1,31 @@
 from django.contrib import admin
 
-from .models import Cart, CartItem, Order, OrderItem
-
-
-class OrderItemInline(admin.TabularInline):
-    model = OrderItem
-    extra = 0
-    can_delete = False
-    readonly_fields = ["product", "product_name", "unit_price", "quantity"]
-
-    def has_add_permission(self, request, obj=None):
-        return False
-
-
-@admin.register(Order)
-class OrderAdmin(admin.ModelAdmin):
-    list_display = ["id", "user", "status", "total", "created_at"]
-    list_filter = ["status", "created_at"]
-    list_editable = ["status"]
-    search_fields = ["user__username", "id"]
-    readonly_fields = ["user", "total", "created_at", "updated_at"]
-    inlines = [OrderItemInline]
+from .models import Cart, CartItem
 
 
 class CartItemInline(admin.TabularInline):
     model = CartItem
     extra = 0
+    readonly_fields = ("subtotal",)
+
+    @admin.display(description="Subtotal")
+    def subtotal(self, obj):
+        return obj.subtotal if obj.pk else "-"
 
 
 @admin.register(Cart)
 class CartAdmin(admin.ModelAdmin):
-    list_display = ["user", "updated_at"]
+    list_display = ("user", "total", "updated_at")
+    search_fields = ("user__username",)
+    readonly_fields = ("created_at", "updated_at")
     inlines = [CartItemInline]
+
+
+@admin.register(CartItem)
+class CartItemAdmin(admin.ModelAdmin):
+    list_display = ("id", "cart", "product", "quantity", "subtotal")
+    search_fields = ("cart__user__username", "product__name")
+
+    @admin.display(description="Subtotal")
+    def subtotal(self, obj):
+        return obj.subtotal

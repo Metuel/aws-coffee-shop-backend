@@ -15,7 +15,7 @@ urlpatterns = [
     # --- App endpoints ---
     path('api/', include('products.urls')),
     path('api/cart/', include('carts.urls')),
-    # path('api/orders/', include('orders.urls')),
+    path('api/orders/', include('orders.urls')),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
