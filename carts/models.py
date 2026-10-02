@@ -1,3 +1,4 @@
+import uuid
 from decimal import Decimal
 
 from django.conf import settings
@@ -8,10 +9,15 @@ from products.models import Product
 
 
 class Cart(models.Model):
+    # Guest carts have no user. The browser keeps `token` and sends it with
+    # every request (X-Cart-Token header) to find its cart again.
+    token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name="cart",
+        null=True,
+        blank=True,
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -24,7 +30,7 @@ class Cart(models.Model):
         )
 
     def __str__(self):
-        return f"Cart of {self.user}"
+        return f"Cart of {self.user}" if self.user else f"Guest cart {self.token}"
 
 
 class CartItem(models.Model):
@@ -56,4 +62,3 @@ class CartItem(models.Model):
 
     def __str__(self):
         return f"{self.quantity} x {self.product}"
-
